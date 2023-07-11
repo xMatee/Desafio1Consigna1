@@ -10,7 +10,8 @@ namespace WebApplication1.Controllers
         {
             "pepe", "jacobo", "ruperta"
         };
-        private static List<WeatherForecast> weatherForecasts = new List<WeatherForecast>();
+        private static List<Persona> listaPersonas = new List<Persona>();
+
 
         [HttpGet]
         public IActionResult Get()
@@ -18,82 +19,90 @@ namespace WebApplication1.Controllers
             var ran = new Random();
             for (int i = 0; i < 5; i++)
             {
-                var forecast = new WeatherForecast
+                var forecast = new Persona
                 {
                     Nombre = nombres[ran.Next(nombres.Length)],
                     Edad = ran.Next(15,25),
                     Fecha = DateTime.Now.AddDays(i),
                     Id = ran.Next(0,5)
                 };
-                weatherForecasts.Add(forecast);
+                listaPersonas.Add(forecast);
             }
 
-            if (weatherForecasts.Count > 0)
-                return Ok(weatherForecasts); // Devuelve código de estado 200
+            if (listaPersonas.Count > 0)
+                return Ok(listaPersonas); // Devuelve código de estado 200
             else
                 return NoContent(); // No hay contenido, devuelve codigo de estado 204
         }
+
+
         [HttpPost]
-        public IActionResult Post([FromBody] WeatherForecast newForecast)
+        public IActionResult Post([FromBody] Persona nuevaPersona)
         {
-            // id random
-            int newForecastId = new Random().Next(1000);
+            int nuevaPersonaId = new Random().Next(1000);            // id random
 
-            // Establecer el URI del nuevo recurso.
-            string newResourceUri = $"/weatherforecast/{newForecastId}";
 
-            newForecast.Id = newForecastId;
-            weatherForecasts.Add(newForecast);
+            string newResourceUri = $"/weatherforecast/{nuevaPersonaId}";            // URI
 
-            return Created(newResourceUri, newForecast);
+
+            nuevaPersona.Id = nuevaPersonaId;
+            listaPersonas.Add(nuevaPersona);
+
+            return Created(newResourceUri, nuevaPersona);
         }
+
+
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var forecast = weatherForecasts.FirstOrDefault(f => f.Id == id);
+            var persona = listaPersonas.FirstOrDefault(f => f.Id == id);
 
-            if (forecast != null)
-                return Ok(forecast); // Devuelve, codigo de estado 200
+            if (persona != null)
+                return Ok(persona); // Devuelve, codigo de estado 200
             else
                 return NotFound(); // No existe, codigo de estado 404
         }
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] WeatherForecast updatedForecast)
-        {
-            var existingForecast = weatherForecasts.FirstOrDefault(f => f.Id == id);
 
-            if (existingForecast == null)
+
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] Persona personaActual)
+        {
+            var persona = listaPersonas.FirstOrDefault(f => f.Id == id);
+
+            if (persona == null)
                 return NotFound(); // No existe, codigo de estado 404
 
-            if (existingForecast.Id != updatedForecast.Id)
+            if (persona.Id != personaActual.Id)
                 return Conflict("La solicitud no coincide con el ID de la ruta."); // ID en conflicto (código de estado HTTP 409).
 
-            existingForecast.Fecha = updatedForecast.Fecha;
-            existingForecast.Edad = updatedForecast.Edad;
-            existingForecast.Nombre = updatedForecast.Nombre;
+            persona.Fecha = personaActual.Fecha;
+            persona.Edad = personaActual.Edad;
+            persona.Nombre = personaActual.Nombre;
 
             return NoContent(); // Datos actualizados, código de estado204
         }
+
+
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var existingForecast = weatherForecasts.FirstOrDefault(f => f.Id == id);
+            var persona = listaPersonas.FirstOrDefault(f => f.Id == id);
 
-            if (existingForecast == null)
+            if (persona == null)
                 return NotFound(); // No existe, codigo de estado 404
 
-            weatherForecasts.Remove(existingForecast);
+            listaPersonas.Remove(persona);
 
             return NoContent(); // Eliminado, codigo 204
         }
 
     }
 
-    public class WeatherForecast
+    public class Persona
     {
         public DateTime Fecha { get; set; }
         public int Edad { get; set; }
-        public string Nombre { get; set; }
+        public string? Nombre { get; set; }
         public int Id { get; set; }
     }
 }
